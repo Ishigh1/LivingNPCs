@@ -1,0 +1,3 @@
+displayName = Living NPCs
+author = Gaelyte
+version = 0.1
