@@ -13,7 +13,7 @@ namespace LivingNPCs.TileTool
 		public TileBuilder(int x, int y, ToolSet toolSet, TileInfo tileInfo)
 		{
 			TileInfo = tileInfo;
-			Initialize(x, y, toolSet.Hammer);
+			Initialize(x, y, toolSet.Building);
 		}
 
 		public override bool UseItem()
