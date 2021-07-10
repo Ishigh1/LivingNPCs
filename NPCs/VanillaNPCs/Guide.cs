@@ -10,42 +10,39 @@ namespace LivingNPCs.NPCs.VanillaNPCs
 {
 	public class Guide : Villager
 	{
-		public HouseBuilder HouseBuilderJob;
-		public HouseCleaner HouseCleanerJob;
-		public WoodCutter WoodCutterJob;
-
 		public override void SetDefaults(NPC npc)
 		{
-			WoodCutterJob = new WoodCutter(Axe, 1f); //Should be at 0.5f for game, 1f for debug
-			HouseBuilderJob = new HouseBuilder(Hammer, 1f);
-			HouseCleanerJob = new HouseCleaner(Hammer, Axe, PickAxe, 1f);
-			Job = WoodCutterJob;
+			AddJob(new WoodCutter(Axe, 0.5f)); //Should be at 0.5f for game, 1f for debug
+			AddJob(new HouseBuilder(Hammer, 0.5f));
+			AddJob(new HouseCleaner(Hammer, Axe, PickAxe, 0.5f));
+			SetJobToActive<WoodCutter>();
+			
 			base.SetDefaults(npc);
 		}
 
 		public override bool AI()
 		{
 			bool returnValue = base.AI();
-			switch (Job)
+			switch (ActiveJob)
 			{
 				case WoodCutter woodCutter:
 				{
 					if (woodCutter.WoodCuttingState != WoodCuttingState.GatheringWood &&
 					    NPC.Inventory.TryGetValue(ItemID.Wood, out int amount) && amount >= 11 &&
-					    HouseBuilderJob.HouseBuilderState != HouseBuilderState.Finished)
-						Job = HouseBuilderJob;
+					    GetJob<HouseBuilder>().HouseBuilderState != HouseBuilderState.Finished)
+						SetJobToActive<HouseBuilder>();
 					break;
 				}
 				case HouseBuilder houseBuilder:
 				{
 					if (houseBuilder.HouseBuilderState == HouseBuilderState.Finished)
 					{
-						Job = WoodCutterJob;
+						SetJobToActive<WoodCutter>();
 					}
 					else if (houseBuilder.HouseBuilderState == HouseBuilderState.WaitingForCleanSpot)
 					{
-						Job = HouseCleanerJob;
-						HouseCleanerJob.House = houseBuilder.House;
+						SetJobToActive<HouseCleaner>();
+						GetJob<HouseCleaner>().House = houseBuilder.House;
 					}
 
 					break;
@@ -53,7 +50,7 @@ namespace LivingNPCs.NPCs.VanillaNPCs
 				case HouseCleaner houseCleaner:
 				{
 					if (houseCleaner.HouseCleanerState == HouseCleanerState.Finished)
-						Job = HouseBuilderJob;
+						SetJobToActive<HouseBuilder>();
 					break;
 				}
 			}
@@ -63,7 +60,7 @@ namespace LivingNPCs.NPCs.VanillaNPCs
 
 		public override void DrawWeapon(SpriteBatch spriteBatch, Color drawColor)
 		{
-			Job.TileAction?.DrawSwing(NPC.NPC, spriteBatch, drawColor);
+			ActiveJob.TileAction?.DrawSwing(NPC.NPC, spriteBatch, drawColor);
 		}
 	}
 }

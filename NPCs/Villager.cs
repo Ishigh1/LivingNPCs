@@ -8,11 +8,10 @@ using Terraria.ModLoader.IO;
 
 namespace LivingNPCs.NPCs
 {
-	public abstract class Villager
+	public abstract class Villager : JobCollection
 	{
 		public Item Axe;
 		public Item Hammer;
-		public Job Job;
 		public EasierNPC NPC;
 		public Item PickAxe;
 
@@ -37,7 +36,7 @@ namespace LivingNPCs.NPCs
 		public virtual bool AI()
 		{
 			UpdateTime(Time.Now());
-			return Job.AI(NPC);
+			return ActiveJob.AI(NPC);
 		}
 
 		public virtual void UpdateTime(Time now)

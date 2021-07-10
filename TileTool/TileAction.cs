@@ -22,7 +22,7 @@ namespace LivingNPCs.TileTool
 			HitTile = new HitTile();
 			Tool = tool;
 			Power = (int) (power * efficiency);
-			UseTime = Delay = (int) (tool.useTime * efficiency);
+			UseTime = Delay = (int) (tool.useTime / efficiency);
 			X = x;
 			Y = y;
 		}

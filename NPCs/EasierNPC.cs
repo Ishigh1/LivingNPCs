@@ -74,6 +74,11 @@ namespace LivingNPCs.NPCs
 				else
 					NPC.velocity.X -= 0.1f;
 
+				if (Framing.GetTileSafely(LeftX - 1, UpperY).type == TileID.ClosedDoor)
+					WorldGen.OpenDoor(LeftX - 1, UpperY, NPC.direction);
+				if (Framing.GetTileSafely(RightX + 1, UpperY).type == TileID.OpenDoor)
+					WorldGen.CloseDoor(RightX + 1, UpperY);
+
 				if (Collision.SolidTiles(LeftX - 1, LeftX - 1, UpperY, LowerY - 2))
 					Jump();
 				else
@@ -87,6 +92,11 @@ namespace LivingNPCs.NPCs
 				else
 					NPC.velocity.X += 0.1f;
 
+				if (Framing.GetTileSafely(RightX + 1, UpperY).type == TileID.ClosedDoor)
+					WorldGen.OpenDoor(RightX + 1, UpperY, NPC.direction);
+				if (Framing.GetTileSafely(LeftX - 1, UpperY).type == TileID.OpenDoor)
+					WorldGen.CloseDoor(LeftX - 1, UpperY);
+				
 				if (Collision.SolidTiles(RightX + 1, RightX + 1, UpperY, LowerY - 2))
 					Jump();
 				else

@@ -26,7 +26,7 @@ namespace LivingNPCs.HouseStructure.HouseParts.TileInfo
 			if (IsWall)
 				WorldGen.PlaceWall(x, y, TileId);
 			else
-				WorldGen.PlaceTile(x, y, TileId, style: Style);
+				WorldGen.PlaceTile(x, y, TileId, forced: true, style: Style);
 			Extra?.Invoke(x, y);
 			return true;
 		}
