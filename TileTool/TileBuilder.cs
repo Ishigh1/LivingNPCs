@@ -7,23 +7,21 @@ namespace LivingNPCs.TileTool
 {
 	public class TileBuilder : TileAction
 	{
-		public int Progress;
+		public float Progress;
 		public TileInfo TileInfo;
 
-		public TileBuilder(int x, int y, Item tool, int power, float efficiency, TileInfo tileInfo)
+		public TileBuilder(int x, int y, ToolSet toolSet, TileInfo tileInfo)
 		{
 			TileInfo = tileInfo;
-			Initialize(x, y, tool, power, efficiency);
+			Initialize(x, y, toolSet.Hammer);
 		}
 
 		public override bool UseItem()
 		{
-			if (--Delay > 0)
+			if (!base.UseItem())
 				return false;
 
-			Delay = UseTime;
-
-			Progress += Power;
+			Progress += Tool.GetPower() * Tool.Proficiency;
 			if (Progress >= 100)
 			{
 				TileInfo.Place(X, Y, null);

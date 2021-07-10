@@ -6,16 +6,8 @@ namespace LivingNPCs.Jobs.Gatherer
 {
 	public abstract class GatheringJob : Job
 	{
-		public float Efficiency;
 		public (Point location, Chest chest) HomeChest;
-		public Item Tool;
 		public int WaitingTime;
-
-		protected GatheringJob(Item tool, float efficiency)
-		{
-			Tool = tool;
-			Efficiency = efficiency;
-		}
 
 		public void SetHomeChest(Point chestLocation)
 		{

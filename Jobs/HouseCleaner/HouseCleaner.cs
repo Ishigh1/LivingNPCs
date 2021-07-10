@@ -3,27 +3,17 @@ using LivingNPCs.HouseStructure;
 using LivingNPCs.NPCs;
 using LivingNPCs.TileTool;
 using Microsoft.Xna.Framework;
-using Terraria;
 
 namespace LivingNPCs.Jobs.HouseCleaner
 {
 	public class HouseCleaner : Job
 	{
-		public Item Axe;
-		public float Efficiency;
-		public Item Hammer;
 		public House House;
 		public HouseCleanerState HouseCleanerState;
-		public Item Pickaxe;
 
-		public HouseCleaner(Item hammer, Item axe, Item pickaxe, float efficiency)
+		public HouseCleaner()
 		{
 			HouseCleanerState = HouseCleanerState.SearchingNextTile;
-
-			Hammer = hammer;
-			Axe = axe;
-			Pickaxe = pickaxe;
-			Efficiency = efficiency;
 		}
 
 		public override bool AI(EasierNPC npc)
@@ -47,8 +37,7 @@ namespace LivingNPCs.Jobs.HouseCleaner
 					if (npc.ReachedObjective() && npc.Stop())
 					{
 						HouseCleanerState = HouseCleanerState.Destroying;
-						TileAction = new TileBreaker(npc.Objective.location.X, npc.Objective.location.Y,
-							Hammer, Axe, Pickaxe, Efficiency);
+						TileAction = new TileBreaker(npc.Objective.location.X, npc.Objective.location.Y, npc.ToolSet);
 						goto case HouseCleanerState.Destroying;
 					}
 

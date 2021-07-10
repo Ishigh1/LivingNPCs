@@ -13,7 +13,7 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 		public Dictionary<int, int> InventoryToSave;
 		public WoodCuttingState WoodCuttingState;
 
-		public WoodCutter(Item axe, float efficiency) : base(axe, efficiency)
+		public WoodCutter()
 		{
 			WoodCuttingState = WoodCuttingState.LookingForWood;
 			InventoryToSave = new Dictionary<int, int>
@@ -50,8 +50,7 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 					if (npc.ReachedObjective() && npc.Stop())
 					{
 						WoodCuttingState = WoodCuttingState.CuttingWood;
-						TileAction = new TileBreaker(npc.Objective.location.X, npc.Objective.location.Y,
-							Tool, Tool.axe, Efficiency);
+						TileAction = new TileBreaker(npc.Objective.location.X, npc.Objective.location.Y, npc.ToolSet);
 						goto case WoodCuttingState.CuttingWood;
 					}
 

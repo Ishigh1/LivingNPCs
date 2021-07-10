@@ -13,11 +13,9 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 		public HouseBuilderState HouseBuilderState;
 		public TileInfo TileInfo;
 
-		public HouseBuilder(Item hammer, float efficiency)
+		public HouseBuilder()
 		{
 			HouseBuilderState = HouseBuilderState.LookingForNewHouseEmplacement;
-			Hammer = hammer;
-			Efficiency = efficiency;
 		}
 
 		public override bool AI(EasierNPC npc)
@@ -57,8 +55,8 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 					if (npc.ReachedObjective() && !npc.OnObjective() && npc.Stop())
 					{
 						HouseBuilderState = HouseBuilderState.Building;
-						TileAction = new TileBuilder(npc.Objective.location.X, npc.Objective.location.Y, Hammer,
-							Hammer.hammer, Efficiency, TileInfo);
+						TileAction = new TileBuilder(npc.Objective.location.X, npc.Objective.location.Y, npc.ToolSet,
+							TileInfo);
 						goto case HouseBuilderState.Building;
 					}
 

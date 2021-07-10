@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LivingNPCs.TileTool;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -14,6 +15,8 @@ namespace LivingNPCs.NPCs
 
 		public NPC NPC;
 		public (Point location, int reach) Objective;
+		
+		public ToolSet ToolSet;
 
 		public EasierNPC(NPC npc)
 		{

@@ -7,33 +7,32 @@ namespace LivingNPCs.TileTool
 	{
 		public bool IsWall;
 
-		public TileBreaker(int x, int y, Item tool, int power, float efficiency, bool isWall = false)
+		public TileBreaker(int x, int y, Tool tool, bool isWall = false)
 		{
 			IsWall = isWall;
-			Initialize(x, y, tool, power, efficiency);
+			Initialize(x, y, tool);
 		}
 
-		public TileBreaker(int x, int y, Item hammer, Item axe, Item pickaxe, float efficiency)
+		public TileBreaker(int x, int y, ToolSet toolSet)
 		{
 			int tileType = Framing.GetTileSafely(x, y).type;
 			if (Main.tileHammer[tileType])
-				Initialize(x, y, hammer, hammer.hammer, efficiency);
+				Initialize(x, y, toolSet.Hammer);
 			else if (Main.tileAxe[tileType])
-				Initialize(x, y, axe, axe.axe, efficiency);
+				Initialize(x, y, toolSet.Axe);
 			else
-				Initialize(x, y, pickaxe, pickaxe.pick, efficiency);
+				Initialize(x, y, toolSet.PickAxe);
 		}
 
 		public override bool UseItem()
 		{
-			if (--Delay > 0)
+			if (!base.UseItem())
 				return false;
 
-			Delay = UseTime;
-
-			int damage = Power;
+			int power = Tool.GetPower();
+			int damage = (int) (power * Tool.Proficiency);
 			int tileId = HitTile.HitObject(X, Y, 1);
-			TileLoader.MineDamage(Power, ref damage);
+			TileLoader.MineDamage(power, ref damage);
 
 			bool tileDestroyed = false;
 			if (HitTile.AddDamage(tileId, damage) >= 100)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using LivingNPCs.Jobs;
+using LivingNPCs.TileTool;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -10,20 +11,7 @@ namespace LivingNPCs.NPCs
 {
 	public abstract class Villager : JobCollection
 	{
-		public Item Axe;
-		public Item Hammer;
 		public EasierNPC NPC;
-		public Item PickAxe;
-
-		protected Villager()
-		{
-			PickAxe = new Item();
-			PickAxe.SetDefaults(ItemID.CopperPickaxe);
-			Axe = new Item();
-			Axe.SetDefaults(ItemID.CopperAxe);
-			Hammer = new Item();
-			Hammer.SetDefaults(ItemID.CopperHammer);
-		}
 
 		public Dictionary<int, int> Inventory => NPC.Inventory;
 		public int Type => NPC.Type;

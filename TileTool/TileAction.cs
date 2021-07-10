@@ -11,31 +11,35 @@ namespace LivingNPCs.TileTool
 		public int Animation;
 		public int Delay;
 		public HitTile HitTile;
-		public int Power;
-		public Item Tool;
-		public int UseTime;
+		public Tool Tool;
 		public int X;
 		public int Y;
 
-		protected void Initialize(int x, int y, Item tool, int power, float efficiency)
+		protected void Initialize(int x, int y, Tool tool)
 		{
 			HitTile = new HitTile();
 			Tool = tool;
-			Power = (int) (power * efficiency);
-			UseTime = Delay = (int) (tool.useTime / efficiency);
+			Delay = (int) (Tool.Item.useTime / Tool.Proficiency);
 			X = x;
 			Y = y;
 		}
 
-		public abstract bool UseItem();
+		public virtual bool UseItem()
+		{
+			if (--Delay > 0)
+				return false;
+
+			Delay = (int) (Tool.Item.useTime / Tool.Proficiency);
+			return true;
+		}
 
 		public void DrawSwing(NPC npc, SpriteBatch spriteBatch, Color drawColor)
 		{
-			Texture2D itemTexture = Main.itemTexture[Tool.type];
+			Texture2D itemTexture = Main.itemTexture[Tool.Item.type];
 
 			(Vector2 weaponStart, float rotation) = npc.GetSwingStats(150,
 				100 - Animation, npc.spriteDirection,
-				Tool.width, Tool.height);
+				Tool.Item.width, Tool.Item.height);
 
 			Vector2 weaponPosition = weaponStart + (weaponStart - npc.Center);
 			Vector2 origin = itemTexture.Size() * new Vector2(npc.spriteDirection != 1 ? 1 : 0, 1f);
@@ -62,7 +66,7 @@ namespace LivingNPCs.TileTool
 				Animation < 65 ? frameShift + 2 :
 				frameShift + 3;
 			npc.frame.Y = frame * Main.npcTexture[npc.type].Height / Main.npcFrameCount[npc.type];
-			Animation = (Animation + 100 / Tool.useAnimation) % 100;
+			Animation = (Animation + 100 / Tool.Item.useAnimation) % 100;
 		}
 	}
 }
