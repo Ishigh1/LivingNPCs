@@ -1,8 +1,7 @@
-using LivingNPCs.HouseStructure.HouseParts.TileInfo;
-using LivingNPCs.HouseStructure.HouseParts.TileInfo.Sets;
+using LivingNPCs.Info.TileInfo.Sets;
 using Microsoft.Xna.Framework;
 
-namespace LivingNPCs.HouseStructure.HouseParts.Ceiling
+namespace LivingNPCs.Village.HouseStructure.HouseParts.Ceiling
 {
 	public class Ceiling : HousePart
 	{

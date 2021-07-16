@@ -1,18 +1,19 @@
 using Terraria;
 
-namespace LivingNPCs.HouseStructure.HouseParts.TileInfo.Sets
+namespace LivingNPCs.Info.TileInfo.Sets
 {
 	public abstract class TileInfoSet
 	{
-		public TileInfo Tile;
+		public TileInfo Candle;
 		public TileInfo Door;
-		
-		public TileInfo WorkBench;
 		public TileInfo LeftChair;
 		public TileInfo RightChair;
-		public TileInfo Candle;
-		
+		public TileInfo Tile;
+
 		public TileInfo Wall;
+
+		public TileInfo WorkBench;
+
 		public static void ChairFacingRight(int x, int y)
 		{
 			Framing.GetTileSafely(x, y).frameX += 18;

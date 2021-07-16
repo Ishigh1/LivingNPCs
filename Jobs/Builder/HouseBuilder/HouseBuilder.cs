@@ -1,8 +1,8 @@
 using System;
-using LivingNPCs.HouseStructure;
-using LivingNPCs.HouseStructure.HouseParts.TileInfo;
 using LivingNPCs.NPCs;
 using LivingNPCs.TileTool;
+using LivingNPCs.Village.HouseStructure;
+using LivingNPCs.Village.OrderSystem.Order;
 using Microsoft.Xna.Framework;
 using Terraria;
 
@@ -11,62 +11,44 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 	public class HouseBuilder : Builder
 	{
 		public HouseBuilderState HouseBuilderState;
-		public TileInfo TileInfo;
 
 		public HouseBuilder()
 		{
 			HouseBuilderState = HouseBuilderState.LookingForNewHouseEmplacement;
 		}
 
-		public override bool AI(EasierNPC npc)
+		public override bool AI(EasierNPC easierNPC)
 		{
 			switch (HouseBuilderState)
 			{
 				case HouseBuilderState.LookingForNewHouseEmplacement:
-					(Point point, int size, int direction) = FindNearbyTile(npc, 50, FindOpenField);
-					if (point == Point.Zero)
-						return true;
-					House = new House(point, direction, size % 100);
-					HouseBuilderState = HouseBuilderState.WaitingForCleanSpot;
-					return false;
-				case HouseBuilderState.WaitingForCleanSpot:
-					if (House.IsBuildable())
+					(Point point, int score, int direction) = FindNearbyTile(easierNPC, 50, FindOpenField);
+					if (point != Point.Zero)
 					{
-						HouseBuilderState = HouseBuilderState.SearchingNextTile;
-						goto case HouseBuilderState.SearchingNextTile;
+						new House(easierNPC, point, direction, score % 100);
+						CurrentOrder.Completed = true;
+						HouseBuilderState = HouseBuilderState.Finished;
 					}
 
 					return true;
-				case HouseBuilderState.SearchingNextTile:
-					(Point location, TileInfo tileInfo) = House.GetNextPointToBuild();
-					if (location == Point.Zero)
-					{
-						HouseBuilderState = HouseBuilderState.Finished;
-						goto case HouseBuilderState.Finished;
-					}
-					else
-					{
-						npc.SetObjective(location, 5);
-						TileInfo = tileInfo;
-						HouseBuilderState = HouseBuilderState.GoingToNextTile;
-						goto case HouseBuilderState.GoingToNextTile;
-					}
 				case HouseBuilderState.GoingToNextTile:
-					if (npc.ReachedObjective() && !npc.OnObjective() && npc.Stop())
+					if (easierNPC.ReachedObjective() && !easierNPC.OnObjective() && easierNPC.Stop())
 					{
 						HouseBuilderState = HouseBuilderState.Building;
-						TileAction = new TileBuilder(npc.Objective.location.X, npc.Objective.location.Y, npc.ToolSet,
-							TileInfo);
+						TileAction = new TileBuilder(easierNPC.Objective.location.X, easierNPC.Objective.location.Y,
+							easierNPC.ToolSet,
+							((BuildingOrder) CurrentOrder).TileInfo);
 						goto case HouseBuilderState.Building;
 					}
 
-					npc.Walk();
+					easierNPC.Walk();
 					return false;
 				case HouseBuilderState.Building:
 					if (TileAction.UseItem())
 					{
 						TileAction = null;
-						HouseBuilderState = HouseBuilderState.SearchingNextTile;
+						HouseBuilderState = HouseBuilderState.Finished;
+						goto case HouseBuilderState.Finished;
 					}
 
 					return false;
@@ -104,6 +86,23 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 				return length * 10001;
 			else
 				return length + solidGround * 100;
+		}
+
+		public override Order NewOrder(EasierNPC easierNPC)
+		{
+			if (HouseBuilderState == HouseBuilderState.LookingForNewHouseEmplacement)
+				return easierNPC.OrderCollection.GetOrder<HouseOrder>();
+			else
+			{
+				BuildingOrder buildingOrder = easierNPC.OrderCollection.GetOrder<BuildingOrder>();
+				if (buildingOrder != null)
+				{
+					CachedObjective = (buildingOrder.Location, 5);
+					HouseBuilderState = HouseBuilderState.GoingToNextTile;
+				}
+
+				return buildingOrder;
+			}
 		}
 	}
 }

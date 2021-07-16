@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using LivingNPCs.NPCs;
+using Microsoft.Xna.Framework;
 
 namespace LivingNPCs.Jobs
 {
 	public class JobCollection
 	{
-		public Dictionary<Type, Job> Jobs;
+		public EasierNPC EasierNPC;
 		public Job ActiveJob;
+		public Dictionary<Type, Job> Jobs;
 
 		public JobCollection()
 		{
@@ -21,7 +24,14 @@ namespace LivingNPCs.Jobs
 
 		public void SetJobToActive<TJob>() where TJob : Job
 		{
-			ActiveJob = Jobs[typeof(TJob)];
+			SetJobToActive(typeof(TJob));
+		}
+
+		public void SetJobToActive(Type jobType)
+		{
+			ActiveJob = Jobs[jobType];
+			if (ActiveJob.CachedObjective.location != Point.Zero) 
+				EasierNPC.SetObjective(ActiveJob.CachedObjective);
 		}
 
 		public TJob GetJob<TJob>() where TJob : Job

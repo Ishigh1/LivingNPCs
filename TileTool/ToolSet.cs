@@ -1,13 +1,10 @@
-using Terraria;
-using Terraria.ID;
-
 namespace LivingNPCs.TileTool
 {
 	public class ToolSet
 	{
 		public Tool Axe;
-		public Tool Hammer;
 		public Tool Building;
+		public Tool Hammer;
 		public Tool PickAxe;
 
 		public ToolSet(int axeType, int hammerType, int pickaxeType, float baseProficiency)

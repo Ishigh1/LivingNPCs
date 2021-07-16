@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using LivingNPCs.NPCs;
 using LivingNPCs.TileTool;
+using LivingNPCs.Village.OrderSystem.Order;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -10,51 +10,37 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 {
 	public class WoodCutter : GatheringJob
 	{
-		public Dictionary<int, int> InventoryToSave;
 		public WoodCuttingState WoodCuttingState;
 
 		public WoodCutter()
 		{
-			WoodCuttingState = WoodCuttingState.LookingForWood;
-			InventoryToSave = new Dictionary<int, int>
-			{
-				{ItemID.Acorn, 5}
-			};
+			WoodCuttingState = WoodCuttingState.Finished;
 		}
 
-		public override bool AI(EasierNPC npc)
+		public override bool AI(EasierNPC easierNPC)
 		{
 			switch (WoodCuttingState)
 			{
-				case WoodCuttingState.LookingForChest:
-					Point chestLocation = FindNearbyTile(npc, 50, IsChest).location;
-					if (chestLocation != Point.Zero)
-					{
-						SetHomeChest(chestLocation);
-						WoodCuttingState = WoodCuttingState.LookingForWood;
-						goto case WoodCuttingState.LookingForWood;
-					}
-
-					return true;
 				case WoodCuttingState.LookingForWood:
-					Point treeLocation = FindNearbyTile(npc, 10, IsTree).location;
+					Point treeLocation = FindNearbyTile(easierNPC, 50, IsTree).location;
 					if (treeLocation != Point.Zero)
 					{
-						npc.SetObjective(treeLocation, 2);
+						easierNPC.SetObjective(treeLocation, 2);
 						WoodCuttingState = WoodCuttingState.GoingToWood;
 						goto case WoodCuttingState.GoingToWood;
 					}
 
 					return true;
 				case WoodCuttingState.GoingToWood:
-					if (npc.ReachedObjective() && npc.Stop())
+					if (easierNPC.ReachedObjective() && easierNPC.Stop())
 					{
 						WoodCuttingState = WoodCuttingState.CuttingWood;
-						TileAction = new TileBreaker(npc.Objective.location.X, npc.Objective.location.Y, npc.ToolSet);
+						TileAction = new TileBreaker(easierNPC.Objective.location.X, easierNPC.Objective.location.Y,
+							easierNPC.ToolSet);
 						goto case WoodCuttingState.CuttingWood;
 					}
 
-					npc.Walk();
+					easierNPC.Walk();
 					return false;
 				case WoodCuttingState.CuttingWood:
 					if (TileAction.UseItem())
@@ -66,18 +52,19 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 
 					return false;
 				case WoodCuttingState.GatheringWood:
-					(bool pickedUpItems, bool remainingItems) = npc.GatherItems(10);
+					(bool pickedUpItems, bool remainingItems) = easierNPC.GatherItems(10);
 					if (!remainingItems)
 					{
 						if (--WaitingTime == 0)
 						{
-							if (npc.Inventory.TryGetValue(ItemID.Acorn, out int acornAmount) && acornAmount > 0)
+							if (easierNPC.Inventory.TryGetValue(ItemID.Acorn, out int acornAmount) && acornAmount > 0)
 							{
-								WorldGen.PlaceTile(npc.Objective.location.X, npc.Objective.location.Y, TileID.Saplings);
-								npc.Inventory[ItemID.Acorn]--;
+								WorldGen.PlaceTile(easierNPC.Objective.location.X, easierNPC.Objective.location.Y,
+									TileID.Saplings);
+								easierNPC.Inventory[ItemID.Acorn]--;
 							}
 
-							CheckInventoryFill(npc);
+							CheckInventoryFill();
 						}
 					}
 					else if (pickedUpItems)
@@ -86,35 +73,18 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 					}
 
 					return false;
-				case WoodCuttingState.GoingToChest:
-					if (npc.ReachedObjective() && npc.Stop())
-					{
-						npc.DumpAllInChest(HomeChest.chest, InventoryToSave);
-						WoodCuttingState = WoodCuttingState.LookingForWood;
-						goto case WoodCuttingState.LookingForWood;
-					}
-
-					npc.Walk();
-					return false;
+				case WoodCuttingState.Finished:
+					return true;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 		}
 
-		public void CheckInventoryFill(EasierNPC npc)
+		public void CheckInventoryFill()
 		{
-			int itemCount = 50;
-			foreach (KeyValuePair<int, int> i in npc.Inventory) itemCount -= i.Value;
-			itemCount = 0; //Debug code
-			if (itemCount >= 0)
-			{
-				WoodCuttingState = WoodCuttingState.LookingForWood;
-			}
-			else
-			{
-				npc.SetObjective(HomeChest.location, 2);
-				WoodCuttingState = WoodCuttingState.GoingToChest;
-			}
+			WoodCuttingState = ((ItemOrder) CurrentOrder)?.CheckValidity() is false
+				? WoodCuttingState.Finished
+				: WoodCuttingState.LookingForWood;
 		}
 
 		public virtual int IsTree(Point point, int _)
@@ -130,6 +100,15 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 			}
 
 			return value;
+		}
+
+		public override Order NewOrder(EasierNPC easierNPC)
+		{
+			ItemOrder itemOrder =
+				easierNPC.OrderCollection.GetOrder<ItemOrder>(order => order.ItemInfo.ItemId == ItemID.Wood);
+			if (itemOrder != null) WoodCuttingState = WoodCuttingState.LookingForWood;
+
+			return itemOrder;
 		}
 	}
 }

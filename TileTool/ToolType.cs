@@ -2,6 +2,8 @@ namespace LivingNPCs.TileTool
 {
 	public enum ToolType
 	{
-		Axe, Hammer, Pickaxe
+		Axe,
+		Hammer,
+		Pickaxe
 	}
 }

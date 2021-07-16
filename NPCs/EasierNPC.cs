@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LivingNPCs.TileTool;
+using LivingNPCs.Village.OrderSystem;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -15,7 +16,8 @@ namespace LivingNPCs.NPCs
 
 		public NPC NPC;
 		public (Point location, int reach) Objective;
-		
+		public OrderCollection OrderCollection;
+
 		public ToolSet ToolSet;
 
 		public EasierNPC(NPC npc)
@@ -23,6 +25,7 @@ namespace LivingNPCs.NPCs
 			NPC = npc;
 			ClearObjective();
 			Inventory = new Dictionary<int, int>();
+			OrderCollection = new OrderCollection();
 		}
 
 		public int LeftX => (int) (NPC.position.X / 16);
@@ -44,10 +47,15 @@ namespace LivingNPCs.NPCs
 			}
 		}
 
+		public void SetObjective((Point point, int reach) objective)
+		{
+			Objective = objective;
+			GoingToObjective();
+		}
+
 		public void SetObjective(Point point, int reach = 0)
 		{
-			Objective = (point, reach);
-			GoingToObjective();
+			SetObjective((point, reach));
 		}
 
 		public bool GoingToObjective()
@@ -70,6 +78,8 @@ namespace LivingNPCs.NPCs
 
 		public void Walk(float maxSpeed = 1.5f)
 		{
+			if(NoObjective())
+				return;
 			if (NPC.direction == -1)
 			{
 				if (NPC.velocity.X <= -(maxSpeed - 0.1f))
@@ -99,7 +109,7 @@ namespace LivingNPCs.NPCs
 					WorldGen.OpenDoor(RightX + 1, UpperY, NPC.direction);
 				if (Framing.GetTileSafely(LeftX - 1, UpperY).type == TileID.OpenDoor)
 					WorldGen.CloseDoor(LeftX - 1, UpperY);
-				
+
 				if (Collision.SolidTiles(RightX + 1, RightX + 1, UpperY, LowerY - 2))
 					Jump();
 				else
@@ -122,7 +132,7 @@ namespace LivingNPCs.NPCs
 		public bool ReachedObjective()
 		{
 			return !GoingToObjective();
-		}
+			}
 
 		public bool OnObjective()
 		{
@@ -150,8 +160,7 @@ namespace LivingNPCs.NPCs
 				if (squaredDistance < 1 * TileToSquaredPixel)
 				{
 					item.active = false;
-					Inventory.TryGetValue(item.type, out int amount);
-					Inventory[item.type] = amount + item.stack;
+					AddItemToInventory(item.type, item.stack);
 					pickedUpItems = true;
 				}
 				else if (squaredDistance < squaredRange)
@@ -163,6 +172,12 @@ namespace LivingNPCs.NPCs
 			}
 
 			return (pickedUpItems, remainingItems);
+		}
+
+		public void AddItemToInventory(int itemId, int stack)
+		{
+			Inventory.TryGetValue(itemId, out int amount);
+			Inventory[itemId] = amount + stack;
 		}
 
 		public void DumpAllInChest(Chest chest, Dictionary<int, int> ItemsToKeep = null)

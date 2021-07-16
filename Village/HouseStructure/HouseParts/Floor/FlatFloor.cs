@@ -1,8 +1,7 @@
-using LivingNPCs.HouseStructure.HouseParts.TileInfo;
-using LivingNPCs.HouseStructure.HouseParts.TileInfo.Sets;
+using LivingNPCs.Info.TileInfo.Sets;
 using Microsoft.Xna.Framework;
 
-namespace LivingNPCs.HouseStructure.HouseParts.Floor
+namespace LivingNPCs.Village.HouseStructure.HouseParts.Floor
 {
 	public class FlatFloor : HousePart
 	{

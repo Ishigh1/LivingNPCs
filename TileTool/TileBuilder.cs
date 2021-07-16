@@ -1,4 +1,4 @@
-using LivingNPCs.HouseStructure.HouseParts.TileInfo;
+using LivingNPCs.Info.TileInfo;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -24,7 +24,7 @@ namespace LivingNPCs.TileTool
 			Progress += Tool.GetPower() * Tool.Proficiency;
 			if (Progress >= 100)
 			{
-				TileInfo.Place(X, Y, null);
+				TileInfo.Place(X, Y);
 				return true;
 			}
 

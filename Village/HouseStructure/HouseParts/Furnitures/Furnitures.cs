@@ -1,9 +1,8 @@
-using LivingNPCs.HouseStructure.HouseParts.Floor;
-using LivingNPCs.HouseStructure.HouseParts.TileInfo.Sets;
+using LivingNPCs.Info.TileInfo.Sets;
 using Microsoft.Xna.Framework;
 using Terraria;
 
-namespace LivingNPCs.HouseStructure.HouseParts.Furnitures
+namespace LivingNPCs.Village.HouseStructure.HouseParts.Furnitures
 {
 	public class Furnitures : HousePart
 	{

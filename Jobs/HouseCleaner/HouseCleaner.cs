@@ -1,53 +1,39 @@
 using System;
-using LivingNPCs.HouseStructure;
 using LivingNPCs.NPCs;
 using LivingNPCs.TileTool;
-using Microsoft.Xna.Framework;
+using LivingNPCs.Village.OrderSystem.Order;
 
 namespace LivingNPCs.Jobs.HouseCleaner
 {
 	public class HouseCleaner : Job
 	{
-		public House House;
 		public HouseCleanerState HouseCleanerState;
 
 		public HouseCleaner()
 		{
-			HouseCleanerState = HouseCleanerState.SearchingNextTile;
+			HouseCleanerState = HouseCleanerState.Finished;
 		}
 
-		public override bool AI(EasierNPC npc)
+		public override bool AI(EasierNPC easierNPC)
 		{
 			switch (HouseCleanerState)
 			{
-				case HouseCleanerState.SearchingNextTile:
-					Point location = House.GetNextPointToClean();
-					if (location == Point.Zero)
-					{
-						HouseCleanerState = HouseCleanerState.Finished;
-						goto case HouseCleanerState.Finished;
-					}
-					else
-					{
-						npc.SetObjective(location, 2);
-						HouseCleanerState = HouseCleanerState.GoingToNextTile;
-						goto case HouseCleanerState.GoingToNextTile;
-					}
 				case HouseCleanerState.GoingToNextTile:
-					if (npc.ReachedObjective() && npc.Stop())
+					if (easierNPC.ReachedObjective() && easierNPC.Stop())
 					{
 						HouseCleanerState = HouseCleanerState.Destroying;
-						TileAction = new TileBreaker(npc.Objective.location.X, npc.Objective.location.Y, npc.ToolSet);
+						TileAction = new TileBreaker(easierNPC.Objective.location.X, easierNPC.Objective.location.Y,
+							easierNPC.ToolSet);
 						goto case HouseCleanerState.Destroying;
 					}
 
-					npc.Walk();
+					easierNPC.Walk();
 					return false;
 				case HouseCleanerState.Destroying:
 					if (TileAction.UseItem())
 					{
 						TileAction = null;
-						HouseCleanerState = HouseCleanerState.SearchingNextTile;
+						HouseCleanerState = HouseCleanerState.Finished;
 					}
 
 					return false;
@@ -56,6 +42,18 @@ namespace LivingNPCs.Jobs.HouseCleaner
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		public override Order NewOrder(EasierNPC easierNPC)
+		{
+			CleaningOrder cleaningOrder = easierNPC.OrderCollection.GetOrder<CleaningOrder>();
+			if (cleaningOrder != null)
+			{
+				CachedObjective = (cleaningOrder.Location, 5);
+				HouseCleanerState = HouseCleanerState.GoingToNextTile;
+			}
+
+			return cleaningOrder;
 		}
 	}
 }

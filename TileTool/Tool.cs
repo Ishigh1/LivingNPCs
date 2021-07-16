@@ -16,7 +16,7 @@ namespace LivingNPCs.TileTool
 			Proficiency = proficiency;
 			ToolType = toolType;
 		}
-		
+
 		public Tool(Item item, float proficiency, ToolType toolType)
 		{
 			Item = item;

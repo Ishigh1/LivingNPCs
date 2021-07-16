@@ -1,7 +1,7 @@
-using LivingNPCs.HouseStructure.HouseParts.TileInfo.Sets;
+using LivingNPCs.Info.TileInfo.Sets;
 using Microsoft.Xna.Framework;
 
-namespace LivingNPCs.HouseStructure.HouseParts.Background
+namespace LivingNPCs.Village.HouseStructure.HouseParts.Background
 {
 	public class RectangleBackground : HousePart
 	{

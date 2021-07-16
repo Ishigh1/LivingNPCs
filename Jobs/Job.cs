@@ -1,6 +1,7 @@
 using System;
 using LivingNPCs.NPCs;
 using LivingNPCs.TileTool;
+using LivingNPCs.Village.OrderSystem.Order;
 using Microsoft.Xna.Framework;
 using Terraria;
 
@@ -9,7 +10,11 @@ namespace LivingNPCs.Jobs
 	public abstract class Job
 	{
 		public TileAction TileAction;
-		public abstract bool AI(EasierNPC npc);
+		public (Point location, int reach) CachedObjective;
+		public Order CurrentOrder;
+		public abstract bool AI(EasierNPC easierNPC);
+
+		public abstract Order NewOrder(EasierNPC easierNPC);
 
 		public (Point location, int value, int direction) FindNearbyTile(EasierNPC npc, int reach,
 			Func<Point, int, int> tileCondition)

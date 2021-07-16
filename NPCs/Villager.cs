@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using LivingNPCs.Jobs;
-using LivingNPCs.TileTool;
+using LivingNPCs.Village.OrderSystem.Order;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -11,20 +13,30 @@ namespace LivingNPCs.NPCs
 {
 	public abstract class Villager : JobCollection
 	{
-		public EasierNPC NPC;
-
-		public Dictionary<int, int> Inventory => NPC.Inventory;
-		public int Type => NPC.Type;
+		public Dictionary<int, int> Inventory => EasierNPC.Inventory;
+		public int Type => EasierNPC.Type;
 
 		public virtual void SetDefaults(NPC npc)
 		{
-			NPC = new EasierNPC(npc);
+			EasierNPC = new EasierNPC(npc);
 		}
 
 		public virtual bool AI()
 		{
 			UpdateTime(Time.Now());
-			return ActiveJob.AI(NPC);
+			if (ActiveJob?.CurrentOrder is DependantOrder dependantOrder)
+			{
+				List<Order> orders = dependantOrder.Refresh();
+				if (orders != null)
+					foreach (Order order in orders)
+						EasierNPC.OrderCollection.AddOrder(order);
+			}
+
+			if (!(ActiveJob?.CurrentOrder?.CheckValidity() is true) || !ActiveJob.CurrentOrder.IsAvailable())
+				FindNewJob();
+			
+			EasierNPC.GatherItems(3);
+			return ActiveJob?.AI(EasierNPC) ?? true;
 		}
 
 		public virtual void UpdateTime(Time now)
@@ -65,6 +77,34 @@ namespace LivingNPCs.NPCs
 					int itemId = ItemID.TypeFromUniqueKey(item.Key);
 					Inventory.Add(itemId, stack);
 				}
+		}
+
+		public void FindNewJob()
+		{
+			ActiveJob = null;
+			foreach (KeyValuePair<Type, Job> keyValuePair in Jobs)
+			{
+				Job job = keyValuePair.Value;
+				if (job.CurrentOrder?.CheckValidity() is true && job.CurrentOrder.IsAvailable())
+				{
+					SetJobToActive(keyValuePair.Key);
+					return;
+				}
+			}
+
+			foreach (KeyValuePair<Type, Job> keyValuePair in Jobs)
+			{
+				Job job = keyValuePair.Value;
+				if (!(job.CurrentOrder?.Completed is false))
+				{
+					job.CurrentOrder = job.NewOrder(EasierNPC);
+					if (job.CurrentOrder?.CheckValidity() is true && job.CurrentOrder.IsAvailable())
+					{
+						SetJobToActive(keyValuePair.Key);
+						return;
+					}
+				}
+			}
 		}
 	}
 }

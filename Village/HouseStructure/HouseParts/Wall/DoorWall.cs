@@ -1,8 +1,7 @@
-using LivingNPCs.HouseStructure.HouseParts.TileInfo;
-using LivingNPCs.HouseStructure.HouseParts.TileInfo.Sets;
+using LivingNPCs.Info.TileInfo.Sets;
 using Microsoft.Xna.Framework;
 
-namespace LivingNPCs.HouseStructure.HouseParts.Wall
+namespace LivingNPCs.Village.HouseStructure.HouseParts.Wall
 {
 	public class DoorWall : HousePart
 	{

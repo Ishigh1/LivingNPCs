@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using LivingNPCs.Info.TileInfo;
 using Microsoft.Xna.Framework;
 
-namespace LivingNPCs.HouseStructure.HouseParts
+namespace LivingNPCs.Village.HouseStructure.HouseParts
 {
 	public abstract class HousePart
 	{
-		public List<(Point location, TileInfo.TileInfo tileInfo)> Blocks;
+		public List<(Point location, TileInfo tileInfo)> Blocks;
 		public Point FirstEnd; //TopMost or LeftMost end of the structure
 
 		public int NextBlock;
@@ -13,10 +14,10 @@ namespace LivingNPCs.HouseStructure.HouseParts
 
 		protected HousePart()
 		{
-			Blocks = new List<(Point location, TileInfo.TileInfo tileInfo)>();
+			Blocks = new List<(Point location, TileInfo tileInfo)>();
 		}
 
-		public (Point location, TileInfo.TileInfo tileInfo) GetNextBlock()
+		public (Point location, TileInfo tileInfo) GetNextBlock()
 		{
 			return NextBlock == Blocks.Count ? (Point.Zero, null) : Blocks[NextBlock++];
 		}
