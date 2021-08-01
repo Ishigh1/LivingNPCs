@@ -17,11 +17,11 @@ namespace LivingNPCs.Jobs.Crafter
 		{
 			AllowedRecipes = new Dictionary<int, Recipe>
 			{
-				{ItemID.Torch, Main.recipe[0]},
+				//{ItemID.Torch, Main.recipe[0]},
 				{ItemID.WoodWall, Main.recipe[441]},
 				{ItemID.WoodenDoor, Main.recipe[475]},
 				{ItemID.WoodenChair, Main.recipe[476]},
-				{ItemID.WorkBench, Main.recipe[480]},
+				{ItemID.WorkBench, Main.recipe[480]}
 			};
 			CrafterState = CrafterState.Finished;
 		}
@@ -32,16 +32,18 @@ namespace LivingNPCs.Jobs.Crafter
 			switch (CrafterState)
 			{
 				case CrafterState.FindingStation:
-					(Point point, int _, int _) = FindNearbyTile(easierNPC, 5,
+					(Point point, int _, int _) = FindNearbyTile(easierNPC, 10,
 						(location, _) => Framing.GetTileSafely(location).type == craftingOrder.Recipe.requiredTile[0]
 							? 100
 							: -1);
 					if (point != Point.Zero)
 					{
-						easierNPC.SetObjective(point);
+						easierNPC.SetObjective(point, 2);
 						CrafterState = CrafterState.GoingToStation;
 						goto case CrafterState.GoingToStation;
 					}
+					
+					easierNPC.SetObjective(easierNPC.Village.Home.Center);
 
 					return true;
 				case CrafterState.GoingToStation:
@@ -68,15 +70,19 @@ namespace LivingNPCs.Jobs.Crafter
 		public override Order NewOrder(EasierNPC easierNPC)
 		{
 			ItemOrder itemOrder =
-				easierNPC.OrderCollection.GetOrder<ItemOrder>(
+				easierNPC.Village.GetOrder<ItemOrder>(
 					order => AllowedRecipes.ContainsKey(order.ItemInfo.ItemId));
 			if (itemOrder is null)
 				return null;
 
 			Recipe recipe = AllowedRecipes[itemOrder.ItemInfo.ItemId];
 			CrafterState = recipe.requiredTile[0] == -1 ? CrafterState.Crafting : CrafterState.FindingStation;
-			CraftingOrder craftingOrder = new CraftingOrder(recipe, itemOrder);
-			foreach (Order otherOrder in craftingOrder.OtherOrders) easierNPC.OrderCollection.AddOrder(otherOrder);
+			CraftingOrder craftingOrder =
+				new CraftingOrder(recipe, itemOrder, easierNPC.Village, recipe.requiredTile[0]);
+#if DEBUG
+			LivingNPCs.Writer.WriteLine("new order : " + craftingOrder);
+#endif
+			foreach (Order otherOrder in craftingOrder.OtherOrders) easierNPC.Village.AddOrder(otherOrder);
 
 			return craftingOrder;
 		}

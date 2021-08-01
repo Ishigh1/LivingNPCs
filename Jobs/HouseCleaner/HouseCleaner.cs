@@ -46,7 +46,7 @@ namespace LivingNPCs.Jobs.HouseCleaner
 
 		public override Order NewOrder(EasierNPC easierNPC)
 		{
-			CleaningOrder cleaningOrder = easierNPC.OrderCollection.GetOrder<CleaningOrder>();
+			CleaningOrder cleaningOrder = easierNPC.Village.GetOrder<CleaningOrder>();
 			if (cleaningOrder != null)
 			{
 				CachedObjective = (cleaningOrder.Location, 5);

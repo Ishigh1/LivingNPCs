@@ -30,12 +30,12 @@ namespace LivingNPCs.NPCs
 
 		public void Save(TagCompound tagCompound)
 		{
-			Villager?.Save(tagCompound);
+			//Villager?.Save(tagCompound);
 		}
 
 		public void Load(TagCompound tagCompound)
 		{
-			Villager?.Load(tagCompound);
+			//Villager?.Load(tagCompound);
 		}
 	}
 }

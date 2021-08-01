@@ -8,7 +8,6 @@ using LivingNPCs.Village.HouseStructure.HouseParts.Ceiling;
 using LivingNPCs.Village.HouseStructure.HouseParts.Floor;
 using LivingNPCs.Village.HouseStructure.HouseParts.Furnitures;
 using LivingNPCs.Village.HouseStructure.HouseParts.Wall;
-using LivingNPCs.Village.OrderSystem;
 using LivingNPCs.Village.OrderSystem.Order;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -18,6 +17,7 @@ namespace LivingNPCs.Village.HouseStructure
 	public class House
 	{
 		public List<HousePart> HouseParts;
+		public Point Center;
 
 		public House(EasierNPC builder, Point location, int direction, int size)
 		{
@@ -46,7 +46,9 @@ namespace LivingNPCs.Village.HouseStructure
 
 			foreach (HousePart housePart in HouseParts)
 			foreach ((Point point, TileInfo tileInfo) in housePart.Blocks)
-				builder.OrderCollection.AddOrder(new BuildingOrder(builder, point, tileInfo));
+				builder.Village.AddOrder(new BuildingOrder(builder, point, tileInfo));
+
+			Center = flatFloor.Blocks[flatFloor.Blocks.Count / 2].location;
 		}
 	}
 }

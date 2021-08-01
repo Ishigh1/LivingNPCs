@@ -47,6 +47,7 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 					{
 						TileAction = null;
 						WoodCuttingState = WoodCuttingState.GatheringWood;
+						WantToFinish = true;
 						WaitingTime = 30;
 					}
 
@@ -57,14 +58,12 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 					{
 						if (--WaitingTime == 0)
 						{
-							if (easierNPC.Inventory.TryGetValue(ItemID.Acorn, out int acornAmount) && acornAmount > 0)
-							{
+							if (easierNPC.AddItemToInventory(ItemID.Acorn, -1))
 								WorldGen.PlaceTile(easierNPC.Objective.location.X, easierNPC.Objective.location.Y,
 									TileID.Saplings);
-								easierNPC.Inventory[ItemID.Acorn]--;
-							}
 
-							CheckInventoryFill();
+							WantToFinish = false;
+							WoodCuttingState = WoodCuttingState.Finished;
 						}
 					}
 					else if (pickedUpItems)
@@ -78,13 +77,6 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-		}
-
-		public void CheckInventoryFill()
-		{
-			WoodCuttingState = ((ItemOrder) CurrentOrder)?.CheckValidity() is false
-				? WoodCuttingState.Finished
-				: WoodCuttingState.LookingForWood;
 		}
 
 		public virtual int IsTree(Point point, int _)
@@ -105,7 +97,7 @@ namespace LivingNPCs.Jobs.Gatherer.WoodCutter
 		public override Order NewOrder(EasierNPC easierNPC)
 		{
 			ItemOrder itemOrder =
-				easierNPC.OrderCollection.GetOrder<ItemOrder>(order => order.ItemInfo.ItemId == ItemID.Wood);
+				easierNPC.Village.GetOrder<ItemOrder>(order => order.ItemInfo.ItemId == ItemID.Wood);
 			if (itemOrder != null) WoodCuttingState = WoodCuttingState.LookingForWood;
 
 			return itemOrder;

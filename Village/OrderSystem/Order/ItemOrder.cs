@@ -1,13 +1,16 @@
 using LivingNPCs.Info.ItemInfo;
-using LivingNPCs.Info.TileInfo;
 using LivingNPCs.NPCs;
+#if DEBUG
+using Terraria.ID;
+
+#endif
 
 namespace LivingNPCs.Village.OrderSystem.Order
 {
 	public class ItemOrder : Order
 	{
-		public EasierNPC Requester;
 		public ItemInfo ItemInfo;
+		public EasierNPC Requester;
 
 		public ItemOrder(EasierNPC requester, ItemInfo itemInfo)
 		{
@@ -17,18 +20,19 @@ namespace LivingNPCs.Village.OrderSystem.Order
 
 		public override bool IsValid()
 		{
-			if(Requester.Inventory.TryGetValue(ItemInfo.ItemId, out int amount) && amount >= ItemInfo.Stack)
-			{
-				Requester.Inventory[ItemInfo.ItemId] = amount - ItemInfo.Stack;
-				return false;
-			}
-
-			return true;
+			return !Requester.AddItemToInventory(ItemInfo.ItemId, -ItemInfo.Stack);
 		}
 
 		public override bool IsAvailable()
 		{
 			return true;
 		}
+
+#if DEBUG
+		public override string ToString()
+		{
+			return base.ToString() + "item: " + ItemID.GetUniqueKey(ItemInfo.ItemId);
+		}
+#endif
 	}
 }

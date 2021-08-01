@@ -16,5 +16,14 @@ namespace LivingNPCs.Village.OrderSystem.Order
 		}
 
 		public abstract List<Order> Refresh();
+
+#if DEBUG
+		public override string ToString()
+		{
+			string returnValue = base.ToString() + "dependent: [";
+			returnValue = OtherOrders.Aggregate(returnValue, (current, otherOrder) => current + (otherOrder + ","));
+			return returnValue + "]";
+		}
+#endif
 	}
 }

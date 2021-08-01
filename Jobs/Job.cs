@@ -9,15 +9,16 @@ namespace LivingNPCs.Jobs
 {
 	public abstract class Job
 	{
-		public TileAction TileAction;
 		public (Point location, int reach) CachedObjective;
 		public Order CurrentOrder;
+		public TileAction TileAction;
+		public bool WantToFinish;
 		public abstract bool AI(EasierNPC easierNPC);
 
 		public abstract Order NewOrder(EasierNPC easierNPC);
 
 		public (Point location, int value, int direction) FindNearbyTile(EasierNPC npc, int reach,
-			Func<Point, int, int> tileCondition)
+			Func<Point, int, int> tileCondition, bool bothDirections = false)
 		{
 			Point left = new Point(npc.LeftX, npc.LowerY);
 			Point right = new Point(npc.RightX, npc.LowerY);
@@ -42,6 +43,18 @@ namespace LivingNPCs.Jobs
 					bestValue = value;
 					bestLocation = point;
 					bestDirection = direction;
+				}
+
+				if (bothDirections)
+				{
+					direction *= -1;
+					value = tileCondition(point, direction);
+					if (value > bestValue)
+					{
+						bestValue = value;
+						bestLocation = point;
+						bestDirection = direction;
+					}
 				}
 			}
 
@@ -74,12 +87,34 @@ namespace LivingNPCs.Jobs
 					bestDirection = -1;
 				}
 
+				if (bothDirections)
+				{
+					value = tileCondition(left, 1);
+					if (value > bestValue)
+					{
+						bestValue = value;
+						bestLocation = new Point(left.X, left.Y);
+						bestDirection = 1;
+					}
+				}
+
 				value = tileCondition(right, 1);
 				if (value > bestValue)
 				{
 					bestValue = value;
 					bestLocation = new Point(right.X, right.Y);
 					bestDirection = 1;
+				}
+
+				if (bothDirections)
+				{
+					value = tileCondition(right, -1);
+					if (value > bestValue)
+					{
+						bestValue = value;
+						bestLocation = new Point(right.X, right.Y);
+						bestDirection = -1;
+					}
 				}
 			}
 

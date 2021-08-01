@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using LivingNPCs.Village.OrderSystem.Order;
 
 namespace LivingNPCs.Village.OrderSystem
@@ -16,6 +15,9 @@ namespace LivingNPCs.Village.OrderSystem
 
 		public void AddOrder(Order.Order order)
 		{
+#if DEBUG
+			LivingNPCs.Writer.WriteLine("new order : " + order);
+#endif
 			if (!order.CheckValidity()) return;
 			Type orderType = order.GetType();
 			if (!Collection.TryGetValue(orderType, out List<Order.Order> orders))
@@ -40,11 +42,9 @@ namespace LivingNPCs.Village.OrderSystem
 			if (Collection.TryGetValue(typeof(TOrder), out List<Order.Order> orders))
 			{
 				if (condition != null)
-				{
 					for (; index < orders.Count; index++)
 						if (condition((TOrder) orders[index]))
 							break;
-				}
 
 				if (index >= orders.Count)
 					return null;

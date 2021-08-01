@@ -8,21 +8,24 @@ namespace LivingNPCs.Village.OrderSystem.Order
 {
 	public class CraftingOrder : DependantOrder
 	{
-		public Recipe Recipe;
 		public ItemOrder BaseOrder;
+		public Recipe Recipe;
+		public int TileId;
+		public Village Village;
 
-		public CraftingOrder(Recipe recipe, ItemOrder baseOrder)
+		public CraftingOrder(Recipe recipe, ItemOrder baseOrder, Village village, int tileId = -1)
 		{
 			Recipe = recipe;
 			BaseOrder = baseOrder;
+			Village = village;
+			TileId = tileId;
 		}
 
 		public override void OnCompleted()
 		{
-			if (BaseOrder.Completed)//Refund components
+			if (BaseOrder.Completed) //Refund components
 			{
 				foreach (Order otherOrder in OtherOrders)
-				{
 					if (otherOrder.Completed)
 					{
 						ItemInfo itemInfo = ((ItemOrder) otherOrder).ItemInfo;
@@ -32,20 +35,25 @@ namespace LivingNPCs.Village.OrderSystem.Order
 					{
 						otherOrder.Completed = true;
 					}
-				}
 			}
 			else
 			{
+				BaseOrder.Requester.AddItemToInventory(Recipe.createItem.type, Recipe.createItem.stack);
 				BaseOrder.Completed = true;
-				int excess = Recipe.createItem.stack - BaseOrder.ItemInfo.Stack;
-				if (excess > 0)
-					BaseOrder.Requester.AddItemToInventory(Recipe.createItem.type, excess);
 			}
+#if DEBUG
+			base.OnCompleted();
+#endif
 		}
 
 		public override bool IsValid()
 		{
-			return !BaseOrder.CheckValidity();
+			return BaseOrder.CheckValidity();
+		}
+
+		public override bool IsAvailable()
+		{
+			return base.IsAvailable() && Village.ContainsTile(TileId);
 		}
 
 		public override List<Order> GenerateOtherOrders()
@@ -59,5 +67,12 @@ namespace LivingNPCs.Village.OrderSystem.Order
 		{
 			return null;
 		}
+
+#if DEBUG
+		public override string ToString()
+		{
+			return base.ToString() + "recipe: " + ItemID.GetUniqueKey(Recipe.createItem.type);
+		}
+#endif
 	}
 }

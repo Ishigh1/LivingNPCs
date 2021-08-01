@@ -28,5 +28,12 @@ namespace LivingNPCs.Village.OrderSystem.Order
 		{
 			return true;
 		}
+
+#if DEBUG
+		public override string ToString()
+		{
+			return base.ToString() + "at x:" + Location.X + ", y:" + Location.Y;
+		}
+#endif
 	}
 }

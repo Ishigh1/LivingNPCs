@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LivingNPCs.TileTool;
-using LivingNPCs.Village.OrderSystem;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -16,16 +15,16 @@ namespace LivingNPCs.NPCs
 
 		public NPC NPC;
 		public (Point location, int reach) Objective;
-		public OrderCollection OrderCollection;
 
 		public ToolSet ToolSet;
+		public Village.OrderSystem.Village Village;
 
 		public EasierNPC(NPC npc)
 		{
 			NPC = npc;
 			ClearObjective();
 			Inventory = new Dictionary<int, int>();
-			OrderCollection = new OrderCollection();
+			Village = new Village.OrderSystem.Village();
 		}
 
 		public int LeftX => (int) (NPC.position.X / 16);
@@ -78,7 +77,7 @@ namespace LivingNPCs.NPCs
 
 		public void Walk(float maxSpeed = 1.5f)
 		{
-			if(NoObjective())
+			if (NoObjective())
 				return;
 			if (NPC.direction == -1)
 			{
@@ -132,7 +131,7 @@ namespace LivingNPCs.NPCs
 		public bool ReachedObjective()
 		{
 			return !GoingToObjective();
-			}
+		}
 
 		public bool OnObjective()
 		{
@@ -174,45 +173,13 @@ namespace LivingNPCs.NPCs
 			return (pickedUpItems, remainingItems);
 		}
 
-		public void AddItemToInventory(int itemId, int stack)
+		public bool AddItemToInventory(int itemId, int stack)
 		{
 			Inventory.TryGetValue(itemId, out int amount);
+			if (amount + stack < 0)
+				return false;
 			Inventory[itemId] = amount + stack;
-		}
-
-		public void DumpAllInChest(Chest chest, Dictionary<int, int> ItemsToKeep = null)
-		{
-			foreach (Item item in chest.item)
-			{
-				int amount = 0;
-				int type = 0;
-				if (item.type == ItemID.None)
-					foreach (KeyValuePair<int, int> pair in Inventory)
-					{
-						if (pair.Value != 0 && !(ItemsToKeep?.ContainsKey(pair.Key) is true &&
-						                         ItemsToKeep[pair.Key] >= pair.Value))
-						{
-							type = pair.Key;
-							amount = pair.Value;
-							break;
-						}
-					}
-				else if (Inventory.TryGetValue(item.type, out amount))
-					type = item.type;
-
-				if (amount == 0)
-					continue;
-
-				int savedAmount = 0;
-				if (ItemsToKeep?.TryGetValue(item.type, out savedAmount) is true && savedAmount >= amount)
-					continue;
-
-				if (item.type == ItemID.None)
-					item.SetDefaults(type);
-				int amountGiven = Math.Min(amount - savedAmount, item.maxStack - item.stack);
-				item.stack += amountGiven;
-				Inventory[type] -= amountGiven;
-			}
+			return true;
 		}
 	}
 }

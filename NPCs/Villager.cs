@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using LivingNPCs.Jobs;
 using LivingNPCs.Village.OrderSystem.Order;
 using Microsoft.Xna.Framework;
@@ -13,7 +12,6 @@ namespace LivingNPCs.NPCs
 {
 	public abstract class Villager : JobCollection
 	{
-		public Dictionary<int, int> Inventory => EasierNPC.Inventory;
 		public int Type => EasierNPC.Type;
 
 		public virtual void SetDefaults(NPC npc)
@@ -29,12 +27,19 @@ namespace LivingNPCs.NPCs
 				List<Order> orders = dependantOrder.Refresh();
 				if (orders != null)
 					foreach (Order order in orders)
-						EasierNPC.OrderCollection.AddOrder(order);
+						EasierNPC.Village.AddOrder(order);
 			}
 
-			if (!(ActiveJob?.CurrentOrder?.CheckValidity() is true) || !ActiveJob.CurrentOrder.IsAvailable())
+			if (!(ActiveJob?.WantToFinish is true) && (!(ActiveJob?.CurrentOrder?.CheckValidity() is true) ||
+			                                           !ActiveJob.CurrentOrder.IsAvailable()))
+			{
 				FindNewJob();
-			
+#if DEBUG
+				if (!(ActiveJob?.CurrentOrder is null))
+					LivingNPCs.Writer.WriteLine("Taking job " + ActiveJob.CurrentOrder);
+#endif
+			}
+
 			EasierNPC.GatherItems(3);
 			return ActiveJob?.AI(EasierNPC) ?? true;
 		}
@@ -50,7 +55,7 @@ namespace LivingNPCs.NPCs
 		public void Save(TagCompound tagCompound)
 		{
 			TagCompound inventory = new TagCompound();
-			foreach (KeyValuePair<int, int> item in Inventory)
+			foreach (KeyValuePair<int, int> item in EasierNPC.Inventory)
 			{
 				int stack = item.Value;
 				if (item.Value != 0)
@@ -75,7 +80,7 @@ namespace LivingNPCs.NPCs
 				{
 					int stack = (int) item.Value;
 					int itemId = ItemID.TypeFromUniqueKey(item.Key);
-					Inventory.Add(itemId, stack);
+					EasierNPC.Inventory.Add(itemId, stack);
 				}
 		}
 

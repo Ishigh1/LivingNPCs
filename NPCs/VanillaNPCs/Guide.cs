@@ -25,8 +25,8 @@ namespace LivingNPCs.NPCs.VanillaNPCs
 			AddJob(new WoodCutter());
 			AddJob(new Crafter());
 			SetJobToActive<HouseBuilder>();
-			
-			EasierNPC.OrderCollection.AddOrder(new HouseOrder());
+
+			EasierNPC.Village.AddOrder(new HouseOrder());
 		}
 
 		public override void DrawWeapon(SpriteBatch spriteBatch, Color drawColor)

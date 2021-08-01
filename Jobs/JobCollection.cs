@@ -7,8 +7,8 @@ namespace LivingNPCs.Jobs
 {
 	public class JobCollection
 	{
-		public EasierNPC EasierNPC;
 		public Job ActiveJob;
+		public EasierNPC EasierNPC;
 		public Dictionary<Type, Job> Jobs;
 
 		public JobCollection()
@@ -30,7 +30,7 @@ namespace LivingNPCs.Jobs
 		public void SetJobToActive(Type jobType)
 		{
 			ActiveJob = Jobs[jobType];
-			if (ActiveJob.CachedObjective.location != Point.Zero) 
+			if (ActiveJob.CachedObjective.location != Point.Zero)
 				EasierNPC.SetObjective(ActiveJob.CachedObjective);
 		}
 

@@ -25,7 +25,8 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 					(Point point, int score, int direction) = FindNearbyTile(easierNPC, 50, FindOpenField);
 					if (point != Point.Zero)
 					{
-						new House(easierNPC, point, direction, score % 100);
+						House house = new House(easierNPC, point, direction, score % 100);
+						easierNPC.Village.Home = house;
 						CurrentOrder.Completed = true;
 						HouseBuilderState = HouseBuilderState.Finished;
 					}
@@ -65,13 +66,13 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 			int solidGround = 0;
 			for (length = 0; length < 15; length++)
 			{
-				if (WorldGen.SolidOrSlopedTile(location.X + length * direction, location.Y))
+				if (WorldGen.SolidTile(location.X + length * direction, location.Y))
 				{
 					length--;
 					break;
 				}
 
-				if (WorldGen.SolidOrSlopedTile(location.X + length * direction, location.Y + 1))
+				if (WorldGen.SolidTile(location.X + length * direction, location.Y + 1))
 				{
 					solidGround++;
 				}
@@ -91,10 +92,12 @@ namespace LivingNPCs.Jobs.Builder.HouseBuilder
 		public override Order NewOrder(EasierNPC easierNPC)
 		{
 			if (HouseBuilderState == HouseBuilderState.LookingForNewHouseEmplacement)
-				return easierNPC.OrderCollection.GetOrder<HouseOrder>();
+			{
+				return easierNPC.Village.GetOrder<HouseOrder>();
+			}
 			else
 			{
-				BuildingOrder buildingOrder = easierNPC.OrderCollection.GetOrder<BuildingOrder>();
+				BuildingOrder buildingOrder = easierNPC.Village.GetOrder<BuildingOrder>();
 				if (buildingOrder != null)
 				{
 					CachedObjective = (buildingOrder.Location, 5);
